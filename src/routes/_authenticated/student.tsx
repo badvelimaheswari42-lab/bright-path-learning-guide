@@ -70,31 +70,17 @@ function StudentDashboard() {
     (topic) => progressByKey[`${language}:${topic}`]?.completed
   ).length;
 
+  // Update the local cache immediately so consecutive changes (score then
+  // complete) never read stale values while the server round-trip is running.
+  function patchRows(
+    forLanguage: string,
+    forTopic: string,
+    patch: { score?: number | null; completed?: boolean }
+  ) {
+    queryClient.setQueryData(AggregateQueryResult_unused, undefined);
+  }
+
   const save = useMutation({
-    mutationFn: (input: {
-      language: string;
-      topic: string;
-      score: number | null;
-      completed: boolean;
-    }) => saveTopicProgress({ data: input }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["my-progress"] }),
-    onError: (error) => toast.error((error as Error).message),
-  });
-
-  function setScore(topic: string, score: number) {
-    const completed = progressByKey[`${language}:${topic}`]?.completed ?? false;
-    save.mutate({ language, topic, score, completed });
-  }
-
-  function toggleCompleted(topic: string) {
-    const entry = progressByKey[`${language}:${topic}`];
-    save.mutate({
-      language,
-      topic,
-      score: entry?.score ?? null,
-      completed: !(entry?.completed ?? false),
-    });
-  }
 
   async function signOut() {
     await queryClient.cancelQueries();
