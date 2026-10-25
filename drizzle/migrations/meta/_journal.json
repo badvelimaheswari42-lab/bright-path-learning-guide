@@ -1,5 +1,27 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792903750531,
+      "tag": "0000_auth_profiles_roles_progress",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792903941692,
+      "tag": "0001_student_role_trigger_conflict_safe",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792904311638,
+      "tag": "0002_atomic_topic_progress_upsert",
+      "breakpoints": true
+    }
+  ]
 }
