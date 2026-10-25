@@ -114,12 +114,12 @@ export default function SmartLearningCompass() {
   const [subjectFilter, setSubjectFilter] = useState("All");
   const [students] = useState<Student[]>(sampleStudents);
 
-  const topics = languages[language];
+  const topics = languages[language] ?? [];
 
   const studentAverage = average(
     topics
-      .filter((topic) => scores[`${language}:${topic}`] !== undefined)
       .map((topic) => scores[`${language}:${topic}`])
+      .filter((score): score is number => score !== undefined)
   );
 
   const filteredStudents = useMemo(
