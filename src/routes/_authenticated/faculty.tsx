@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
 import { average, statusFor } from "@/lib/learning";
-import { getFacultyOverview } from "@/server/faculty";
+import { getFacultyOverview } from "@/functions/faculty";
 
 export const Route = createFileRoute("/_authenticated/faculty")({
   head: () => ({

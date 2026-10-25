@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
 import { languages, average } from "@/lib/learning";
-import { getMyProgress, saveTopicProgress } from "@/server/student";
+import { getMyProgress, saveTopicProgress } from "@/functions/student";
 
 export const Route = createFileRoute("/_authenticated/student")({
   head: () => ({
