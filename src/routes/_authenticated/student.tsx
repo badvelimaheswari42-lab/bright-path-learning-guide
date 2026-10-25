@@ -71,16 +71,57 @@ function StudentDashboard() {
   ).length;
 
   // Update the local cache immediately so consecutive changes (score then
-  // complete) never read stale values while the server round-trip is running.
+  // complete) never read stale values while the server round-trip runs.
   function patchRows(
     forLanguage: string,
     forTopic: string,
     patch: { score?: number | null; completed?: boolean }
   ) {
-    queryClient.setQueryData(AggregateQueryResult_unused, undefined);
+    queryClient.setQueryData<ReturnType<typeof getMyProgress>>(
+      ["my-progress"],
+      (old) => {
+        if (!old) return old;
+        let found = false;
+        const rows = old.rows.map((row) =>
+          row.language === forLanguage && row.topic === forTopic
+            ? ((found = true), { ...row, ...patch })
+            : row
+        );
+        if (!found) {
+          rows.push({
+            language: forLanguage,
+            topic: forTopic,
+            score: patch.score ?? null,
+            completed: patch.completed ?? false,
+          });
+        }
+        return { ...old, rows };
+      }
+    );
   }
 
   const save = useMutation({
+    mutationFn: (input: {
+      language: string;
+      topic: string;
+      score: number | null;
+      completed: boolean;
+    }) => saveTopicProgress({ data: input }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["my-progress"] }),
+    onError: (error) => toast.error((error as Error).message),
+  });
+
+  function setScore(topic: string, score: number) {
+    patchRows(language, topic, { score });
+    save.mutate({ language, topic, score, completed: progressByKey[`${language}:${topic}`]?.completed ?? false });
+  }
+
+  function toggleCompleted(topic: string) {
+    const entry = progressByKey[`${language}:${topic}`];
+    const completed = !(entry?.completed ?? false);
+    patchRows(language, topic, { completed });
+    save.mutate({ language, topic, score: entry?.score ?? null, completed });
+  }
 
   async function signOut() {
     await queryClient.cancelQueries();
