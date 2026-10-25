@@ -9,10 +9,13 @@ import { lovable } from "@/integrations/lovable/index";
 type Role = "student" | "faculty";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    role: (search.role === "faculty" ? "faculty" : "student") as Role,
-    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { role: Role; redirect?: string } => {
+    const result: { role: Role; redirect?: string } = {
+      role: search["role"] === "faculty" ? "faculty" : "student",
+    };
+    if (typeof search["redirect"] === "string") result.redirect = search["redirect"];
+    return result;
+  },
   head: () => ({
     meta: [
       { title: "Sign in — Smart Learning Compass" },

@@ -71,7 +71,12 @@ function StudentDashboard() {
   ).length;
 
   const save = useMutation({
-    mutationFn: saveTopicProgress,
+    mutationFn: (input: {
+      language: string;
+      topic: string;
+      score: number | null;
+      completed: boolean;
+    }) => saveTopicProgress({ data: input }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["my-progress"] }),
     onError: (error) => toast.error((error as Error).message),
   });
