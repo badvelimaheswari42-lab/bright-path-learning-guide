@@ -46,7 +46,8 @@ export const saveTopicProgress = createServerFn({ method: "POST" })
     const { error } = await supabase.rpc("upsert_topic_progress", {
       p_language: data.language,
       p_topic: data.topic,
-      p_score: data.score,
+      // The SQL function accepts NULL for "keep the existing score".
+      p_score: (data.score ?? null) as number,
       p_completed: data.completed,
     });
 
