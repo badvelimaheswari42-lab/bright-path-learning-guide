@@ -40,17 +40,23 @@ export const saveTopicProgress = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const match = { user_id: userId, language: data.language, topic: data.topic };
 
-    const { error } = await supabase.from("student_progress").upsert(
-      {
-        user_id: userId,
-        language: data.language,
-        topic: data.topic,
-        score: data.score,
-        completed: data.completed,
-      },
-      { onConflict: "user_id,language,topic" }
-    );
+    // Preserve an existing score when the change is only the completed flag.
+    let score = data.score;
+    if (score === null) {
+      const { data: existing } = await supabase
+        .from("student_progress")
+        .select("score")
+        .match(match)
+        .maybeSingle();
+      score = existing?.score ?? null;
+    }
+
+    const { error } = await supabase
+      .from("student_progress")
+      .upsert({ ...match, score, completed: data.completed })
+      .select();
 
     if (error) throw new Error(error.message);
     return { ok: true };
