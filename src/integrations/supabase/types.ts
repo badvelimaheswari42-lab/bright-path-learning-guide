@@ -100,6 +100,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      upsert_topic_progress: {
+        Args: {
+          p_completed: boolean
+          p_language: string
+          p_score: number
+          p_topic: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "student" | "faculty" | "admin"
