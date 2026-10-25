@@ -40,23 +40,15 @@ export const saveTopicProgress = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const match = { user_id: userId, language: data.language, topic: data.topic };
 
-    // Preserve an existing score when the change is only the completed flag.
-    let score = data.score;
-    if (score === null) {
-      const { data: existing } = await supabase
-        .from("student_progress")
-        .select("score")
-        .match(match)
-        .maybeSingle();
-      score = existing?.score ?? null;
-    }
-
-    const { error } = await supabase
-      .from("student_progress")
-      .upsert({ ...match, score, completed: data.completed })
-      .select();
+    // Atomic upsert: keeps an existing score when only the completed flag
+    // changes, with no read-modify-write race.
+    const { error } = await supabase.rpc("upsert_topic_progress", {
+      p_language: data.language,
+      p_topic: data.topic,
+      p_score: data.score,
+      p_completed: data.completed,
+    });
 
     if (error) throw new Error(error.message);
     return { ok: true };
