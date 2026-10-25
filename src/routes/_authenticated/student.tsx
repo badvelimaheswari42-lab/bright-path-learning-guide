@@ -77,7 +77,7 @@ function StudentDashboard() {
     forTopic: string,
     patch: { score?: number | null; completed?: boolean }
   ) {
-    queryClient.setQueryData<ReturnType<typeof getMyProgress>>(
+    queryClient.setQueryData<Awaited<ReturnType<typeof getMyProgress>>>(
       ["my-progress"],
       (old) => {
         if (!old) return old;
